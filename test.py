@@ -2,16 +2,16 @@ import tkinter as tk
 from instruction import Cursor
 
 def test_cursor_functions():
-    # Créer une fenêtre principale Tkinter
+    # Create main window Tkinter
     root = tk.Tk()
     root.title("Tests des formes")
     root.geometry("800x600")
 
-    # Créer un canevas pour les tests
+    # Create a canevas for tests
     canvas = tk.Canvas(root, width=800, height=600, bg="white")
     canvas.pack()
 
-    # Instancier un curseur
+    # Create a cursor
     cursor = Cursor(canvas, x=100, y=100, color="blue", thickness=2)
 
     # Test : Rectangle
@@ -26,24 +26,24 @@ def test_cursor_functions():
     cursor.draw_triangle(100)     
     cursor.move_forward(150)
 
-    # Test : Polygone (pentagone)
+    # Test : Polygon (pentagon)
     cursor.draw_polygon([(cursor.x, cursor.y), (cursor.x + 50, cursor.y + 50),
                          (cursor.x + 100, cursor.y + 25), (cursor.x + 75, cursor.y - 50),
-                         (cursor.x + 25, cursor.y - 50)])  # Pentagone
+                         (cursor.x + 25, cursor.y - 50)])  # Pentagon
     cursor.move_forward(150)
 
-    # Test : Texte
-    cursor.draw_text("Hello, Draw++!")  # Affiche du texte
+    # Test : Text
+    cursor.draw_text("Hello, Draw++!")  # Display text
     cursor.move_forward(150)
 
-    # Test : Point
-    cursor.draw_point()  # Point à la position actuelle
+    # Test : Mark
+    cursor.draw_point()  # Mark at actual position
     cursor.move_forward(150)
 
-    # Test : Demi-cercle
-    cursor.draw_half_circle(50)  # Demi-cercle avec un rayon de 50
+    # Test : Semi-circle
+    cursor.draw_half_circle(50)  # Semi-ciorcle with a radius of 50
 
-    # Lancer la fenêtre Tkinter pour visualiser les formes
+    # Run Tkinter window to visualize the shapes
     root.mainloop()
 
 if __name__ == "__main__":

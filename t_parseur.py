@@ -24,8 +24,8 @@ def parse(tokens):
         if len(tokens) < 5 or tokens[1] != "(" or  ")" not in tokens:
             return {"error": "Invalid syntax for if condition"}
 
-        condition = "".join(tokens[2])  # Récupère la condition
-        body = parse_block(tokens)  # Analyse le bloc associé
+        condition = "".join(tokens[2])  # Get the condition
+        body = parse_block(tokens)  # Analyze the associated block
 
         return {
             "ast": {
@@ -57,7 +57,7 @@ def parse(tokens):
 
     # Other instructions
     elif tokens[0] in ["DRAW", "MOOV", "SET", "CREATE_CURSOR"]:
-        # Code existant pour analyser les instructions simples
+        # Existing code to analyze easy instructions
 
         if tokens[0] == "CREATE_CURSOR":
             if len(tokens) != 8 or tokens[1] != "(" or tokens[7] != ")":
@@ -130,7 +130,7 @@ def parse(tokens):
 
 
     elif "=" in tokens:
-        var_name = tokens[0]  # Nom de la variable
+        var_name = tokens[0]  # Name of the variable
         try:
             value = tokens[2].replace(" ","")
         except ValueError:
@@ -156,20 +156,20 @@ def parse_block(tokens):
 
     start = tokens.index("{") + 1
     end = tokens.index("}")
-    block_tokens = tokens[start:end]  # Contient toutes les instructions du bloc
+    block_tokens = tokens[start:end]  # Contains all the instructions of the block
     
     body = []
     while block_tokens:
-        # Prendre chaque instruction (en supposant ; comme séparateur)
+        # Get each instruction (supposing ; as separator)
         try:
             semicolon = block_tokens.index(",")
             instruction_tokens = block_tokens[:semicolon]
-            block_tokens = block_tokens[semicolon + 1:]  # Reste des tokens
-            result = parse(instruction_tokens)  # Analyse récursive
+            block_tokens = block_tokens[semicolon + 1:]  # Rest of the tokens
+            result = parse(instruction_tokens)  # Recursive analysis
             if "error" not in result:
                 body.append(result["ast"])
         except ValueError:
-            break  # Pas de point-virgule, bloc terminé
+            break  # No semicolons, block finished
 
     return body
 

@@ -8,7 +8,7 @@ from execute import execute
 
 class Application:
     def __init__(self, root):
-        # Initialisation de la fenêtre principale
+        # Initialisation of the main window
         self.root = root
         self.root.title("IDE for DRAW ++")
         self.root.geometry("1000x600")
@@ -25,7 +25,7 @@ class Application:
         self.menu_barre = tk.Menu(self.root)
         self.root.config(menu=self.menu_barre)
 
-        #Menu fichier
+        # File menu
         self.menu_fichier = tk.Menu(self.menu_barre, tearoff=0)
         self.menu_barre.add_cascade(label="Fichier", menu=self.menu_fichier)
         self.menu_fichier.add_command(label="Open folder", command=self.ouvrir_dossier)
@@ -36,7 +36,7 @@ class Application:
         self.menu_fichier.add_separator()
         self.menu_fichier.add_command(label="Quitter", command=self.root.quit)
 
-        #Menu help
+        # Help menu
         self.menu_help = tk.Menu(self.menu_barre, tearoff=0)
         self.menu_barre.add_cascade(label="Help", menu=self.menu_help)
 
@@ -45,7 +45,7 @@ class Application:
         self.fen = tk.PanedWindow(self.root,orient="vertical")
         self.fen.pack(fill="both", expand=True)
 
-        # Cadre principal pour la disposition des widgets
+        # Main frame for the arrengement of widgets
         self.cadre_principal = tk.PanedWindow(self.root,orient="horizontal")
         self.cadre_principal.pack(fill="both", expand=True)
 
@@ -55,13 +55,13 @@ class Application:
         self.zone_canva()
 
     def zone_canva(self):
-        # Zone du canevas à droite
+        # Area of the canevas on the right
         self.canevas = tk.Canvas(self.fen, bg="white", width=500, height=500)
         self.fen.add(self.canevas)
 
 
     def gestion_text(self):
-        # Zone de texte à droite
+        # Area of the text on the right
         self.zone_texte = tk.Text(self.cadre_principal, wrap="word", width=40)
         self.cadre_principal.add(self.zone_texte)
 
@@ -69,15 +69,15 @@ class Application:
         button_exe.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
 
     def executer_code(self):
-        # Récupérer le code écrit par l'utilisateur
+        # Recover the code written by the user
         code = self.zone_texte.get("1.0", tk.END).strip()
         if not code:
             messagebox.showerror("Erreur", "Veuillez écrire du code avant d'exécuter.")
             return
 
-        # Analyse et exécution
+        # Analyze and execution
         try:
-            tokens = tokenize(code)  # Fonction du parseur
+            tokens = tokenize(code)  # Fonction of the parser
             context={"canvas": self.canevas}
             print(tokens)
             for token in tokens:
@@ -86,7 +86,7 @@ class Application:
                     messagebox.showerror("Erreur", ast["error"])
                     return
 
-                # Exécution sur le canevas
+                # Execution on the canevas
                 context = execute(ast["ast"], context)
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors de l'exécution : {e}")
@@ -102,10 +102,10 @@ class Application:
 
         self.treeview_window.bind("<<TreeviewSelect>>", self.afficher_fichier)
 
-        #Style
+        # Style
         self.treeview_window.heading("#0", text="Folders", anchor="w")
 
-    #Ouvre le menu pour selectionner le dossier a ouvrir
+    # Open the menu to select the folder to open
     def ouvrir_dossier(self):
 
         folder_selected = filedialog.askdirectory()
@@ -117,7 +117,7 @@ class Application:
 
 
 
-    #Permet d'insérer un fichier dans le treeview
+    # Allow us to insert a file in the treeview
     def inserer_fichier(self, parent_path, parent_node):
 
         try:
@@ -130,15 +130,15 @@ class Application:
         except :
             pass
 
-    #Permet de retirer un dossier / fichier du treeview
-    #SUPP DANS DOSSIER RACINE NE PAS OUBLIER ! 
+    # Allow us to remove a folder/file of the treeview
+    # SUPP DANS DOSSIER RACINE NE PAS OUBLIER ! 
     def supprimer_dossier(self,dos=""):
         selected_item = self.treeview_window.focus()
         if selected_item:
             self.treeview_window.delete(selected_item)
 
 
-    #Permet d'afficher le fichier dans la zone de texte
+    # Allow to display the file in the text area
     def afficher_fichier(self, event):
 
         selected_item = self.treeview_window.focus()  
@@ -213,7 +213,7 @@ class Application:
 
 
 
-# Création de la fenêtre principale et lancement de l'application
+# Creation of the main window and launch the application
 if __name__ == "__main__":
     root = tk.Tk()
     app = Application(root)

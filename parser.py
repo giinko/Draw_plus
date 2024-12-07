@@ -109,7 +109,7 @@ def parse(tokens):
             }
         }
 
-    # Si l'instruction est inconnue
+    # If unknown instruction
     return {"error": f"Unknown instruction: {tokens[0]}"}
 
 
@@ -120,6 +120,6 @@ code = "for i in range(1, 10)"
 tokens = tokenize(code)
 result = parse(tokens)
 print(result)
-# Résultat attendu :
+# Waited result :
 # {'ast': {'instruction': 'for', 'variable': 'i', 'range': (1, 10)}}
 
