@@ -3,6 +3,8 @@ from instruction import Cursor
 import math
 from tkinter import ttk, filedialog, messagebox,simpledialog
 import os
+from t_parseur import tokenize,parse,parse_block
+from execute import execute
 
 class Application:
     def __init__(self, root):
@@ -15,6 +17,7 @@ class Application:
 
         self.menu()
         self.app()
+
 
 
     def menu(self):
@@ -38,17 +41,57 @@ class Application:
         self.menu_barre.add_cascade(label="Help", menu=self.menu_help)
 
     def app(self):
+
+        self.fen = tk.PanedWindow(self.root,orient="vertical")
+        self.fen.pack(fill="both", expand=True)
+
         # Cadre principal pour la disposition des widgets
         self.cadre_principal = tk.PanedWindow(self.root,orient="horizontal")
         self.cadre_principal.pack(fill="both", expand=True)
 
         self.gestion_fichier()
         self.gestion_text()
-    
+        self.fen.add(self.cadre_principal)
+        self.zone_canva()
+
+    def zone_canva(self):
+        # Zone du canevas à droite
+        self.canevas = tk.Canvas(self.fen, bg="white", width=500, height=500)
+        self.fen.add(self.canevas)
+
+
     def gestion_text(self):
         # Zone de texte à droite
         self.zone_texte = tk.Text(self.cadre_principal, wrap="word", width=40)
         self.cadre_principal.add(self.zone_texte)
+
+        button_exe = tk.Button(self.zone_texte,text="Lancer",command=self.executer_code)
+        button_exe.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
+
+    def executer_code(self):
+        # Récupérer le code écrit par l'utilisateur
+        code = self.zone_texte.get("1.0", tk.END).strip()
+        if not code:
+            messagebox.showerror("Erreur", "Veuillez écrire du code avant d'exécuter.")
+            return
+
+        # Analyse et exécution
+        try:
+            tokens = tokenize(code)  # Fonction du parseur
+            context={"canvas": self.canevas}
+            print(tokens)
+            for token in tokens:
+                ast = parse(token) 
+                if "error" in ast:
+                    messagebox.showerror("Erreur", ast["error"])
+                    return
+
+                # Exécution sur le canevas
+                context = execute(ast["ast"], context)
+        except Exception as e:
+            messagebox.showerror("Erreur", f"Erreur lors de l'exécution : {e}")
+            print("erreur")
+
 
     def gestion_fichier(self):
         self.frame_glob = tk.Frame(self.cadre_principal,bg="lightblue")
