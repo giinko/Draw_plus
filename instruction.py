@@ -7,23 +7,23 @@ class Cursor:
         self.y = y
         self.color = color
         self.thickness = thickness
-        self.angle = 0  # Angle initial
+        self.angle = 0  # Initial angle
 
     def move_forward(self, distance):
-        # Calcul des nouvelles coordonnées
+        # Calculation of news coordinates
         new_x = self.x + distance * math.cos(math.radians(self.angle))
         new_y = self.y + distance * math.sin(math.radians(self.angle))
-        # Dessine une ligne sur le canevas
+        # Draw a line on the canevas
         self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.color, width=self.thickness)
-        # Met à jour la position
+        # Update position
         self.x, self.y = new_x, new_y
 
     def rotate(self, degrees):
-        # Mise à jour de l'angle
+        # Update angle
         self.angle = (self.angle + degrees) % 360
 
     def draw_circle(self, radius):
-        # Dessine un cercle autour de la position actuelle
+        # Draw a circle around actual position
         self.canvas.create_oval(self.x - radius, self.y - radius, self.x + radius, self.y + radius,
                                 outline=self.color, width=self.thickness)
 
@@ -51,9 +51,7 @@ class Cursor:
         self.canvas.create_polygon(points, outline=self.color, fill="", width=self.thickness)
 
     def draw_polygon(self, points):
-        """
-        Dessine un polygone avec une liste de points [(x1, y1), (x2, y2), ...].
-        """
+        # Draw a polygon with a list of coordinates [(x1, y1), (x2, y2), ...].   
         flat_points = [coord for point in points for coord in point]
         self.canvas.create_polygon(flat_points, outline=self.color, fill="", width=self.thickness)
 

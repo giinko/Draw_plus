@@ -33,7 +33,7 @@ def parse_instructions(code):
 
 def parse(tokens, result=None):
     if result is None:
-        result = []  # Initialisation de la liste au premier appel
+        result = []  # Initialisation of the list at first call
     count = 0
     for instruction in tokens:
         if isinstance(instruction, str):
@@ -124,7 +124,7 @@ yes= parse(["DRAW(CIRCLE,50)"])
 
 print(yes)
 
-# Exemple d'utilisation avec la chaîne donnée
+# Exemple of use with a given chain
 code = "DRAW(CIRCLE);DRAW(CIRCLE);if(3>4){if(5>4){DRAW(CIRCLE);} } DRAW(CIRCLE);for i in range(1,2){DRAW(CIRCLE);}"
 parsed = parse_instructions(code)
 

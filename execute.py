@@ -49,20 +49,20 @@ def execute(ast, context=None):
 
 
     elif ast["instruction"] == "DRAW":
-        print(f"Drawing shape: {ast['shape']}")  # Exemple d'action à effectuer
+        print(f"Drawing shape: {ast['shape']}")  # Exemple of actions to perform
         shape = ast['shape']
         if canvas:
             if shape == "CIRCLE":
-                # Dessiner un cercle : coordonnées arbitraires
+                # Draw a circle : arbitrary coordinates
                 canvas.create_oval(150, 150, 250, 250, outline="black", width=2)
             elif shape == "SQUARE":
-                # Dessiner un carré : coordonnées arbitraires
+                # Draw a square : arbitrary coordinates
                 canvas.create_rectangle(150, 150, 250, 250, outline="black", width=2)
             elif shape == "RECTANGLE":
-                # Dessiner un rectangle
+                # Draw a rectangle : arbitrary coordinates
                 canvas.create_rectangle(150, 150, 300, 200, outline="black", width=2)
             elif shape == "HALF_CIRCLE":
-                # Dessiner un demi-cercle : position et taille arbitraires
+                # Draw a semi-circle : arbitrary position and size
                 canvas.create_arc(150, 150, 250, 250, start=0, extent=180, outline="black", width=2)
             else:
                 print(f"Shape '{shape}' is not recognized.")
