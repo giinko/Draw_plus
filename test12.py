@@ -39,8 +39,33 @@ def parse(tokens, result=None):
         if isinstance(instruction, str):
 
             instr = re.findall(r'\w+|\d+|[^\w\s]', instruction)
+
             if instr[0] == "DRAW":
-                result.append({"ast" : {"instruction" : "DRAW", "FORM" : "CIRCLE"}})
+                
+                try :
+                    forme = instr[2]
+                    taille = instr[4]
+                
+                    result.append({
+                        "ast" : {
+                            "instruction" : "DRAW",
+                            "FORM" : forme,
+                            "TAILLE" : taille
+                            }
+                        })
+                except:
+                    print("erreur on verra apres")
+
+            elif instr[0] == "MOOV":
+                #Faire les checks d'erreur
+                distance = "".join(instr[instr.index("(")+1:instr.index(")")])
+                result.append({
+                    "ast": {
+                    "instruction": "MOOV",
+                    "distance": distance,
+                    }
+                })
+
             elif instr[0] == "if":
                 condition = "".join(instr[instr.index("(")+1:instr.index(")")])
                 bod = tokens[count+1]
@@ -67,6 +92,20 @@ def parse(tokens, result=None):
                     }
                 })
 
+            elif instr[1] == "=":
+                nom_var = instr[0]
+                value_var = "".join(instr[2:])
+
+                result.append({
+                    "ast": {
+                        "instruction": "ASSIGN",
+                        "variable": nom_var,
+                        "value": value_var
+                    }
+                })
+
+
+
             #Coder SET, MOOV, ...
             #Coder ASSIGN, ...
             #Faire en sorte de rajouter une taille  pour les formes
@@ -79,7 +118,11 @@ def parse(tokens, result=None):
     
 
 tt = parse(["for i in range(2,4)",["if(5>4)",["DRAW(CIRCLE)"],"DRAW(CIRCLE)"],'DRAW(CIRCLE)', 'if(3>4)',['DRAW(CIRCLE)',"DRAW(CIRCLE)"]])
-print(tt)
+
+
+yes= parse(["DRAW(CIRCLE,50)"])
+
+print(yes)
 
 # Exemple d'utilisation avec la chaîne donnée
 code = "DRAW(CIRCLE);DRAW(CIRCLE);if(3>4){if(5>4){DRAW(CIRCLE);} } DRAW(CIRCLE);for i in range(1,2){DRAW(CIRCLE);}"
