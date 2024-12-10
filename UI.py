@@ -1,11 +1,11 @@
 import tkinter as tk
-from instruction import Cursor
 import math
 from tkinter import ttk, filedialog, messagebox,simpledialog
 import os
-from t_parseur import tokenize,parse,parse_block
+
+from instruction import Cursor
 from execute import execute
-from test12 import instrctions_listed,parseur_2
+from parseur import instrctions_listed,parseur_2
 
 
 class Application:
@@ -21,7 +21,7 @@ class Application:
         self.app()
 
 
-
+    #Menu de l'IDE
     def menu(self):
 
         self.menu_barre = tk.Menu(self.root)
@@ -44,78 +44,84 @@ class Application:
 
     def app(self):
 
-        self.fen = tk.PanedWindow(self.root,orient="vertical")
-        self.fen.pack(fill="both", expand=True)
+        self.cadre_1 = tk.PanedWindow(self.root,orient="vertical")
+        self.cadre_1.pack(fill="both", expand=True)
 
         # Main frame for the arrengement of widgets
-        self.cadre_principal = tk.PanedWindow(self.root,orient="horizontal")
-        self.cadre_principal.pack(fill="both", expand=True)
+        self.cadre_2 = tk.PanedWindow(self.root,orient="horizontal")
+        self.cadre_2.pack(fill="both", expand=True)
+        self.cadre_1.add(self.cadre_2)
 
         self.gestion_fichier()
         self.gestion_text()
-        self.fen.add(self.cadre_principal)
         self.zone_canva()
 
+    #Zone canva pour déssiner
     def zone_canva(self):
-        # Area of the canevas on the right
-        self.canevas = tk.Canvas(self.fen, bg="white", width=500, height=500)
-        self.fen.add(self.canevas)
+        self.canevas = tk.Canvas(self.cadre_1, bg="white", width=500, height=500)
+        self.cadre_1.add(self.canevas)
 
+        #Pour gerer le déplacement dans le canvas
+        self.canevas.bind("<ButtonPress-1>", self.start_drag)  
+        self.canevas.bind("<B1-Motion>", self.drag) 
+        self.canevas.bind("<MouseWheel>", self.zoom)
 
+    #Zone de texte pour l'IDE
     def gestion_text(self):
-        # Area of the text on the right
-        self.zone_texte = tk.Text(self.cadre_principal, wrap="word", width=40)
-        self.cadre_principal.add(self.zone_texte)
 
-        button_exe = tk.Button(self.zone_texte,text="Lancer",command=self.executer_code2)
+        self.zone_texte = tk.Text(self.cadre_2, wrap="word", width=40)
+        self.cadre_2.add(self.zone_texte)
+
+        button_exe = tk.Button(self.zone_texte,text="Lancer",command=self.executer_code)
         button_exe.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
 
+    #Fonction pour éxécuter le code dans la zone de texte
+    def executer_code(self):
 
-    def executer_code2(self):
-
-        # Recover the code written by the user
+        #Récupe le code
         code = self.zone_texte.get("1.0", tk.END).strip()
         if not code:
             messagebox.showerror("Erreur", "Veuillez écrire du code avant d'exécuter.")
             return
 
-        # Analyze and execution
         try:
-
             self.canevas.delete("all")
-            cursor = Cursor(self.canevas, x=100, y=100, color="red", thickness=2)
 
+            cursor = Cursor(self.canevas, x=100, y=100, color="red", thickness=2)
             context={"canvas": self.canevas,"cursor" : cursor}
 
             toks = instrctions_listed(code)
-            toks2 = parseur_2(toks)
-            print(toks2)
-            for token in toks2:
+            tokens = parseur_2(toks)
+            
+            for token in tokens:
+
                 if "error" in token:
                     messagebox.showerror("Erreur", token["error"])
+                    #Boucle qui reenvoie toute les erreurs dans une zone de texte.
+                    #Il faut la code apres !!
                     return
 
-                # Execution on the canevas
+                #Si il y a bien un ast dans le token on reenvoie
                 context = execute(token["ast"], context)
 
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors de l'exécution : {e}")
-            print("erreur")
+            
 
-
+    #Gestionnaire d'affichage des dossiers et fichier
     def gestion_fichier(self):
-        self.frame_glob = tk.Frame(self.cadre_principal,bg="lightblue")
-        self.cadre_principal.add(self.frame_glob)
+        self.frame_glob = tk.Frame(self.cadre_2,bg="white")
+        self.cadre_2.add(self.frame_glob)
 
         self.treeview_window = ttk.Treeview(self.frame_glob)
         self.treeview_window.pack(fill="both", expand=True)
 
         self.treeview_window.bind("<<TreeviewSelect>>", self.afficher_fichier)
 
-        # Style
         self.treeview_window.heading("#0", text="Folders", anchor="w")
 
-    # Open the menu to select the folder to open
+    
+    #Menu pour selectionner un dossier et l'ouvrire
     def ouvrir_dossier(self):
 
         folder_selected = filedialog.askdirectory()
@@ -126,8 +132,7 @@ class Application:
             self.inserer_fichier(folder_selected, base)
 
 
-
-    # Allow us to insert a file in the treeview
+    #Inserer de facon récurcive un fichier dans le gestionnaire de fichier
     def inserer_fichier(self, parent_path, parent_node):
 
         try:
@@ -148,7 +153,7 @@ class Application:
             self.treeview_window.delete(selected_item)
 
 
-    # Allow to display the file in the text area
+    #Permet d'afficher un fichier dans la zone de texte
     def afficher_fichier(self, event):
 
         selected_item = self.treeview_window.focus()  
@@ -169,7 +174,7 @@ class Application:
                 self.zone_texte.delete("1.0", "end")
                 self.zone_texte.insert("1.0", f"Erreur lors de la lecture du fichier : {e}")
 
-
+    #Permet d'enregistrer une fichier
     def enregistrer_fichier(self):
 
         selected_item = self.treeview_window.focus() 
@@ -222,8 +227,43 @@ class Application:
             messagebox.showerror("Erreur", "L'élément sélectionné n'est pas un dossier.")
 
 
+    def move_canvas(self, event):
+        try:
+            if event.keysym == "Up":
+                self.canevas.yview_scroll(-1, "units")
+            elif event.keysym == "Down":
+                self.canevas.yview_scroll(1, "units")
+            elif event.keysym == "Left":
+                self.canevas.xview_scroll(-1, "units")
+            elif event.keysym == "Right":
+                self.canevas.xview_scroll(1, "units")
+        except:
+            pass
 
-# Creation of the main window and launch the application
+
+    # 3 fonctions qui gèrent le déplacement sur le canvas
+    def start_drag(self,event):
+        try : self.canevas.scan_mark(event.x, event.y)
+        except: pass
+
+    def drag(self,event):
+        try : self.canevas.scan_dragto(event.x, event.y, gain=1)
+        except: pass
+
+    def zoom(self,event):
+
+        global scale
+
+        if event.delta > 0:
+            scale *= 1.1
+
+        elif event.delta < 0:
+            scale *= 0.9
+
+        self.canevas.scale("all", event.x, event.y, scale, scale)
+        self.canevas.configure(scrollregion=self.canevas.bbox("all"))
+
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = Application(root)
