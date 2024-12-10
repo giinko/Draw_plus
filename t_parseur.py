@@ -178,3 +178,9 @@ def parse_block(tokens):
 #ensuite des que {} s'ouvre et se ferme on met dans une liste si y'a plus de {}
 #on sep tout par ; et on fait truc normal [draw, ... , if, condition, [body], draw, ...]
 #et dans le body on peut mettre encore des listes et des conditions.
+
+
+code = "DRAW(CIRCLE);DRAW(CIRCLE);if(3>4){if(5>4){DRAW(CIRCLE);} } DRAW(CIRCLE);for i in range(1,2){DRAW(CIRCLE);}"
+t = tokenize(code)
+
+#print(t)

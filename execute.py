@@ -1,4 +1,5 @@
 import re
+from instruction import Cursor
 
 def execute(ast, context=None):
 
@@ -6,29 +7,38 @@ def execute(ast, context=None):
         context = {}
 
     canvas = context.get("canvas")
-
+    cursor = context.get("cursor")
 
 
     if ast["instruction"] == "if":
         condition = ast["condition"]
+        print(ast)
         if eval(condition, {}, context):  
             for instruction in ast["body"]:
-                execute(instruction, context)
+
+                execute(instruction['ast'], context) #Vérifier que pas d'erreur faire un check
 
     elif ast["instruction"] == "for":
+        
+        print("for")
 
         variable = ast["variable"]
+        print("for")
         range_start, range_end = ast["range"]
 
-        if not isinstance(range_start,int):
-            range_start = context[range_start]
-        if not isinstance(range_end,int):
-            range_end = context[range_end]
+        try:
+            range_start = int(range_start)
+            range_end = int(range_end)
+        except ValueError:
+            if isinstance(range_start, str) and range_start in context:
+                range_start = context[range_start]
+            if isinstance(range_end, str) and range_end in context:
+                range_end = context[range_end]
 
         for i in range(range_start, range_end):
             context[variable] = i
             for instruction in ast["body"]:
-                execute(instruction, context)
+                execute(instruction["ast"], context)
 
     elif ast["instruction"] == "ASSIGN":
         var_name = ast["variable"]
@@ -49,32 +59,62 @@ def execute(ast, context=None):
 
 
     elif ast["instruction"] == "DRAW":
-        print(f"Drawing shape: {ast['shape']}")  # Exemple of actions to perform
-        shape = ast['shape']
+        print(f"Drawing shape: {ast['FORM']}")  # Exemple of actions to perform
+        shape = ast['FORM']
+        taille = int(ast["TAILLE"])
+        name_curs = ast["cursor"]
+        cursor = context[name_curs]
+        print(cursor)
         if canvas:
             if shape == "CIRCLE":
-                # Draw a circle : arbitrary coordinates
-                canvas.create_oval(150, 150, 250, 250, outline="black", width=2)
+                cursor.draw_circle(taille)
+
             elif shape == "SQUARE":
-                # Draw a square : arbitrary coordinates
-                canvas.create_rectangle(150, 150, 250, 250, outline="black", width=2)
+                cursor.draw_rectangle(taille,taille)
+
             elif shape == "RECTANGLE":
-                # Draw a rectangle : arbitrary coordinates
-                canvas.create_rectangle(150, 150, 300, 200, outline="black", width=2)
-            elif shape == "HALF_CIRCLE":
-                # Draw a semi-circle : arbitrary position and size
-                canvas.create_arc(150, 150, 250, 250, start=0, extent=180, outline="black", width=2)
+                supp = int(ast["Info_supp"])
+                cursor.draw_rectangle(taille,supp)
+
+            elif shape == "ARC_CIRCLE":
+                supp = int(ast["Info_supp"])
+                cursor.draw_arc(taille,0,supp)
+
+            elif shape == "LINE":
+                cursor.draw_line(taille)
+
             else:
                 print(f"Shape '{shape}' is not recognized.")
 
     elif ast["instruction"] == "MOOV":
         print(f"Moving cursor by {ast['distance']} units") 
 
+        dis = int(ast["distance"])
+        name_cursor = ast["cursor"]
+        cursor = context[name_cursor]
+
+        cursor.move_forward(dis)
+
+    elif ast["instruction"] == "ROTATE":
+        name_curs = ast["name_cursor"]
+        angle = ast["angle"]
+        cursor = context[name_curs]
+
+        cursor.rotate(angle)
+
     elif ast["instruction"] == "SET":
-        print(f"Setting color to {ast['color']} and thickness to {ast['thickness']}")
+        print(f"Setting color to {ast['color']} and thickness to {ast['epaisseur']}")
+        curs = Cursor(canvas,int(ast["x"]),int(ast["y"]),ast["color"],int(ast["epaisseur"]))
+        name = ast["name"]
+        context[name] = curs
+    
 
     elif ast["instruction"] == "CREATE_CURSOR":
-        print(f"Creating cursor at ({ast['x']}, {ast['y']}) with visibility {ast['visibility']}")
+        print(f"Creating cursor at ({ast['x']}, {ast['y']})")
+        curs = Cursor(canvas,int(ast["x"]),int(ast["y"]),ast["color"],int(ast["epaisseur"]))
+        name = ast["name"]
+        context[name] = curs
+    
 
     else:
         print(f"Unknown instruction in execute : {ast['instruction']}")

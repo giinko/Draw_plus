@@ -14,7 +14,7 @@ class Cursor:
         new_x = self.x + distance * math.cos(math.radians(self.angle))
         new_y = self.y + distance * math.sin(math.radians(self.angle))
         # Draw a line on the canevas
-        self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.color, width=self.thickness)
+        #self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.color, width=self.thickness)
         # Update position
         self.x, self.y = new_x, new_y
 
@@ -71,4 +71,13 @@ class Cursor:
             start=0, extent=180,
             outline=self.color, width=self.thickness
         )
+
+    def draw_line(self,distance):
+        new_x = self.x + distance * math.cos(math.radians(self.angle))
+        new_y = self.y + distance * math.sin(math.radians(self.angle))
+        
+        self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.color, width=self.thickness)
+        
+        self.x, self.y = new_x, new_y
+
 

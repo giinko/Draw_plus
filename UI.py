@@ -5,6 +5,8 @@ from tkinter import ttk, filedialog, messagebox,simpledialog
 import os
 from t_parseur import tokenize,parse,parse_block
 from execute import execute
+from test12 import instrctions_listed,parseur_2
+
 
 class Application:
     def __init__(self, root):
@@ -65,10 +67,12 @@ class Application:
         self.zone_texte = tk.Text(self.cadre_principal, wrap="word", width=40)
         self.cadre_principal.add(self.zone_texte)
 
-        button_exe = tk.Button(self.zone_texte,text="Lancer",command=self.executer_code)
+        button_exe = tk.Button(self.zone_texte,text="Lancer",command=self.executer_code2)
         button_exe.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
 
-    def executer_code(self):
+
+    def executer_code2(self):
+
         # Recover the code written by the user
         code = self.zone_texte.get("1.0", tk.END).strip()
         if not code:
@@ -77,17 +81,23 @@ class Application:
 
         # Analyze and execution
         try:
-            tokens = tokenize(code)  # Fonction of the parser
-            context={"canvas": self.canevas}
-            print(tokens)
-            for token in tokens:
-                ast = parse(token) 
-                if "error" in ast:
-                    messagebox.showerror("Erreur", ast["error"])
+
+            self.canevas.delete("all")
+            cursor = Cursor(self.canevas, x=100, y=100, color="red", thickness=2)
+
+            context={"canvas": self.canevas,"cursor" : cursor}
+
+            toks = instrctions_listed(code)
+            toks2 = parseur_2(toks)
+            print(toks2)
+            for token in toks2:
+                if "error" in token:
+                    messagebox.showerror("Erreur", token["error"])
                     return
 
                 # Execution on the canevas
-                context = execute(ast["ast"], context)
+                context = execute(token["ast"], context)
+
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors de l'exécution : {e}")
             print("erreur")
