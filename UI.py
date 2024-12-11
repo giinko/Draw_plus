@@ -13,7 +13,7 @@ class Application:
         # Initialisation of the main window
         self.root = root
         self.root.title("IDE for DRAW ++")
-        self.root.geometry("1000x600")
+        self.root.geometry("1213x750")
                 
         self.dossier_racine = {}
 
@@ -56,9 +56,17 @@ class Application:
         self.gestion_text()
         self.zone_canva()
 
+        self.zone_erreurs = tk.Text(self.cadre_1, height=0, bg="lightgray", state="disabled", wrap="word")
+        self.zone_erreurs.tag_config("error", foreground="red")
+        self.cadre_1.add(self.zone_erreurs)
+        #self.zone_erreurs.pack(fill="x", padx=5, pady=5)
+
+        self.cadre_1.paneconfig(self.cadre_2, stretch="always", minsize=100)
+        self.cadre_1.paneconfig(self.zone_erreurs, stretch="never", minsize=100)
+
     #Zone canva pour déssiner
     def zone_canva(self):
-        self.canevas = tk.Canvas(self.cadre_1, bg="white", width=500, height=500)
+        self.canevas = tk.Canvas(self.cadre_1, bg="white", width=500, height=200)
         self.cadre_1.add(self.canevas)
 
         #Pour gerer le déplacement dans le canvas
@@ -69,7 +77,7 @@ class Application:
     #Zone de texte pour l'IDE
     def gestion_text(self):
 
-        self.zone_texte = tk.Text(self.cadre_2, wrap="word", width=40)
+        self.zone_texte = tk.Text(self.cadre_2, height=100,wrap="word", width=40)
         self.cadre_2.add(self.zone_texte)
 
         button_exe = tk.Button(self.zone_texte,text="Lancer",command=self.executer_code)
@@ -95,20 +103,29 @@ class Application:
             for token in tokens:
 
                 if "error" in token:
-                    messagebox.showerror("Erreur", token["error"])
-                    return
+                    self.afficher_erreur(token["error"])
+                    continue
 
                 #Si il y a bien un ast dans le token on reenvoie
                 context = execute(token["ast"], context)
                 
                 if "error" in context :
-                    messagebox.showerror("Erreur", context["error"])
-                    return
-             
+                    #messagebox.showerror("Erreur", context["error"])
+                    self.afficher_erreur(context["error"])
+                        
+            self.afficher_erreur("[Finished]")
 
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors de l'exécution : {e}")
             
+
+    def afficher_erreur(self, message, ligne=None):
+        self.zone_erreurs.config(state="normal")
+        if ligne:
+            self.zone_erreurs.insert("end", f"Ligne {ligne}: {message}\n", "error")
+        else:
+            self.zone_erreurs.insert("end", f"{message}\n", "error")
+        self.zone_erreurs.config(state="disabled")
 
     #Gestionnaire d'affichage des dossiers et fichier
     def gestion_fichier(self):
