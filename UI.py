@@ -5,7 +5,7 @@ import os
 
 from instruction import Cursor
 from execute import execute
-from parseur import instrctions_listed,parseur_2
+from parseur import instrctions_listed,parseur
 
 
 class Application:
@@ -33,7 +33,7 @@ class Application:
         self.menu_fichier.add_command(label="Open folder", command=self.ouvrir_dossier)
         self.menu_fichier.add_command(label="New file",command=self.creer_fichier)
         self.menu_fichier.add_command(label="Save",command=self.enregistrer_fichier)
-        self.menu_fichier.add_command(label="Delete",)
+        self.menu_fichier.add_command(label="Delete File", command=self.supprimer_fichier)
         self.menu_fichier.add_command(label="Remove Folder",command=self.supprimer_dossier)
         self.menu_fichier.add_separator()
         self.menu_fichier.add_command(label="Quitter", command=self.root.quit)
@@ -87,22 +87,24 @@ class Application:
         try:
             self.canevas.delete("all")
 
-            cursor = Cursor(self.canevas, x=100, y=100, color="red", thickness=2)
-            context={"canvas": self.canevas,"cursor" : cursor}
+            context={"canvas": self.canevas}
 
             toks = instrctions_listed(code)
-            tokens = parseur_2(toks)
+            tokens = parseur(toks)
             
             for token in tokens:
 
                 if "error" in token:
                     messagebox.showerror("Erreur", token["error"])
-                    #Boucle qui reenvoie toute les erreurs dans une zone de texte.
-                    #Il faut la code apres !!
                     return
 
                 #Si il y a bien un ast dans le token on reenvoie
                 context = execute(token["ast"], context)
+                
+                if "error" in context :
+                    messagebox.showerror("Erreur", context["error"])
+                    return
+             
 
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors de l'exécution : {e}")
@@ -226,19 +228,26 @@ class Application:
         else:
             messagebox.showerror("Erreur", "L'élément sélectionné n'est pas un dossier.")
 
+    def supprimer_fichier(self):
+        selected_item = self.treeview_window.focus()  # Obtenir l'élément sélectionné
+        if not selected_item:
+            messagebox.showerror("Erreur", "Aucun fichier sélectionné.")
+            return
 
-    def move_canvas(self, event):
-        try:
-            if event.keysym == "Up":
-                self.canevas.yview_scroll(-1, "units")
-            elif event.keysym == "Down":
-                self.canevas.yview_scroll(1, "units")
-            elif event.keysym == "Left":
-                self.canevas.xview_scroll(-1, "units")
-            elif event.keysym == "Right":
-                self.canevas.xview_scroll(1, "units")
-        except:
-            pass
+        chemin_fichier = self.dossier_racine[selected_item]
+
+        if os.path.isfile(chemin_fichier):
+            confirmation = messagebox.askyesno("Confirmation", f"Voulez-vous supprimer le fichier {chemin_fichier} ?")
+            if confirmation:
+                try:
+                    os.remove(chemin_fichier)  # Supprimer le fichier
+                    self.treeview_window.delete(selected_item)  # Supprimer du Treeview
+                    del self.dossier_racine[selected_item]  # Retirer du dictionnaire
+                    messagebox.showinfo("Succès", "Fichier supprimé avec succès.")
+                except Exception as e:
+                    messagebox.showerror("Erreur", f"Erreur lors de la suppression : {e}")
+        else:
+            messagebox.showerror("Erreur", "L'élément sélectionné n'est pas un fichier.")
 
 
     # 3 fonctions qui gèrent le déplacement sur le canvas

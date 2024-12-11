@@ -31,10 +31,10 @@ def instrctions_listed(code):
     
     return stack[0]  # The result is the top-level list
 
-def parseur_2(tokens, result=None):
+def parseur(tokens, result=None):
 
     if result is None:
-        result = []  # Initialisation of the list at first call
+        result = [] 
     count = 0
 
     for instruction in tokens:
@@ -57,10 +57,7 @@ def parseur_2(tokens, result=None):
                         if infos[1] not in ["ARC_CIRCLE", "RECTANGLE", "CIRCLE", "LINE", "SQUARE"]:
                             result.append({"error": f"Unsupported shape '{infos[1]}' in DRAW."})
                             continue
-                        if not infos[2].isdigit():
-                            #Pas forcément ca peut aussi etre une variable on va voir ca apres
-                            result.append({"error": f"The size parameter '{infos[2]}' in DRAW must be a positive integer."})
-                            continue
+                        
                         result.append({
                             "ast": {
                                 "instruction": "DRAW",
@@ -80,10 +77,7 @@ def parseur_2(tokens, result=None):
                         if len(infos) != 2:
                             result.append({"error": "MOOV requires exactly 2 parameters: cursor_name and distance."})
                             continue
-                        if not infos[1].isdigit():
-                            #A voir car ca peut etre une variable 
-                            result.append({"error": f"The distance parameter '{infos[1]}' in MOOV must be a positive integer."})
-                            continue
+                        
                         result.append({
                             "ast": {
                                 "instruction": "MOOV",
@@ -101,10 +95,7 @@ def parseur_2(tokens, result=None):
                         if len(infos) != 5:
                             result.append({"error": "CREATE_CURSOR requires exactly 5 parameters: name, x, y, color, and thickness."})
                             continue
-                        if not infos[1].isdigit() or not infos[2].isdigit():
-                            #On va voir pour mettre des variables ici aussi
-                            result.append({"error": "Parameters 'x' and 'y' in CREATE_CURSOR must be integers."})
-                            continue
+                        
                         result.append({
                             "ast": {
                                 "instruction": "CREATE_CURSOR",
@@ -125,10 +116,7 @@ def parseur_2(tokens, result=None):
                         if len(infos) != 2:
                             result.append({"error": "ROTATE requires exactly 2 parameters: cursor and angle."})
                             continue
-                        if not infos[1].isdigit():
-                            #Pareil voir pour variable
-                            result.append({"error": f"The angle parameter '{infos[1]}' in ROTATE must be an integer."})
-                            continue
+                        
                         result.append({
                             "ast": {
                                 "instruction": "ROTATE",
@@ -168,7 +156,7 @@ def parseur_2(tokens, result=None):
                             "ast": {
                                 "instruction": "if",
                                 "condition": condition,
-                                "body": parseur_2(bod),
+                                "body": parseur(bod),
                             }
                         })
                     except Exception as e:
@@ -187,7 +175,7 @@ def parseur_2(tokens, result=None):
                                 "instruction": "for",
                                 "variable": instr[1],
                                 "range": (param[0], param[1]),
-                                "body": parseur_2(body),
+                                "body": parseur(body),
                             }
                         })
                     except Exception as e:
