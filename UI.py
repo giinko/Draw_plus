@@ -38,6 +38,15 @@ class Application:
         self.menu_fichier.add_separator()
         self.menu_fichier.add_command(label="Quitter", command=self.root.quit)
 
+        # Canvas menu
+        self.menu_fichier = tk.Menu(self.menu_barre, tearoff=0)
+        self.menu_barre.add_cascade(label="Canvas", menu=self.menu_fichier)
+        self.menu_fichier.add_command(label="Animate", command=print())
+        self.menu_fichier.add_command(label="Zoom in", command=self.zoom_in)
+        self.menu_fichier.add_command(label="Zoom out", command=self.zoom_out)
+        self.menu_fichier.add_command(label="Full screen", command=self.canvas_fullscreen)
+        self.menu_fichier.add_command(label="Exit Full screen", command=self.restore_layout)
+
         # Help menu
         self.menu_help = tk.Menu(self.menu_barre, tearoff=0)
         self.menu_barre.add_cascade(label="Help", menu=self.menu_help)
@@ -69,10 +78,17 @@ class Application:
         self.canevas = tk.Canvas(self.cadre_1, bg="white", width=500, height=200)
         self.cadre_1.add(self.canevas)
 
+        button_zoomin = tk.Button(self.canevas,text="+",command=self.zoom_in)
+        button_zoomin.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-50)
+
+        button_zoomout = tk.Button(self.canevas,text="--",command=self.zoom_out)
+        button_zoomout.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
+
+        self.scale = 1
+        self.is_fullscreen = False
         #Pour gerer le déplacement dans le canvas
         self.canevas.bind("<ButtonPress-1>", self.start_drag)  
         self.canevas.bind("<B1-Motion>", self.drag) 
-        self.canevas.bind("<MouseWheel>", self.zoom)
 
     #Zone de texte pour l'IDE
     def gestion_text(self):
@@ -267,7 +283,7 @@ class Application:
             messagebox.showerror("Erreur", "L'élément sélectionné n'est pas un fichier.")
 
 
-    # 3 fonctions qui gèrent le déplacement sur le canvas
+    #2 fonctions qui gèrent le déplacement sur le canvas
     def start_drag(self,event):
         try : self.canevas.scan_mark(event.x, event.y)
         except: pass
@@ -276,19 +292,64 @@ class Application:
         try : self.canevas.scan_dragto(event.x, event.y, gain=1)
         except: pass
 
-    def zoom(self,event):
 
-        global scale
+    # Fonction de zoom avant
+    def zoom_in(self):
+        new_scale = self.scale * 1.1  # Calculer la nouvelle échelle
+        self.apply_zoom(new_scale)
 
-        if event.delta > 0:
-            scale *= 1.1
+    # Fonction de zoom arrière
+    def zoom_out(self):
+        new_scale = self.scale / 1.1  # Calculer la nouvelle échelle
+        self.apply_zoom(new_scale)
 
-        elif event.delta < 0:
-            scale *= 0.9
+    # Appliquer le zoom
+    def apply_zoom(self, new_scale):
+        if not self.canevas.bbox("all"):  # Si le canvas est vide, rien à zoomer
+            return
 
-        self.canevas.scale("all", event.x, event.y, scale, scale)
+        # Calculer le facteur de transformation
+        scale_factor = new_scale / self.scale
+        self.scale = new_scale  # Mettre à jour l'échelle actuelle
+
+        # Calculer le centre du canvas
+        bbox = self.canevas.bbox("all")
+        x_center = (bbox[2] + bbox[0]) / 2
+        y_center = (bbox[3] + bbox[1]) / 2
+
+        # Appliquer le facteur de zoom
+        self.canevas.scale("all", x_center, y_center, scale_factor, scale_factor)
         self.canevas.configure(scrollregion=self.canevas.bbox("all"))
 
+
+    # Mettre le canvas en plein écran
+    def canvas_fullscreen(self):
+        if not self.is_fullscreen:
+            self.cadre_1.remove(self.cadre_2)  
+            self.cadre_1.remove(self.zone_erreurs)  
+            self.canevas.pack(fill="both", expand=True)  
+            self.is_fullscreen = True
+
+    # Restaurer la mise en page initiale
+    def restore_layout(self):
+        if self.is_fullscreen:
+            self.canevas.pack_forget()  
+            self.cadre_1.add(self.cadre_2)  
+            self.cadre_1.add(self.canevas)  
+            self.cadre_1.add(self.zone_erreurs)  
+            self.cadre_1.paneconfig(self.cadre_2, stretch="always", minsize=100)
+            self.cadre_1.paneconfig(self.zone_erreurs, stretch="never", minsize=100)
+            self.is_fullscreen = False
+
+    def animate_canvas(self):
+
+        #Proposer une boxe pour choisir la vitesse d'execution en ms
+        #Verifier qu'il n'y a pas d'erreur dans le code, que la fonction de base ne reenvoie aucune erreur
+        #Si c'est bon mettre le canva en plein ecran
+        #mettre un time.spleep dans la fonction execute avec en parametre le temps choisis
+        #remettre l'app comme de base, ' restor_layout'
+        #Et voila LOL le dessin est anime
+        print()
 
 if __name__ == "__main__":
     root = tk.Tk()
