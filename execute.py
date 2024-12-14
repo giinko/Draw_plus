@@ -1,12 +1,14 @@
 import re
 from instruction import Cursor
+import time
 
-def execute(ast, context=None):
+def execute(ast, context=None,timer=None):
 
     if context is None:
         context = {"errors": []}  
 
     canvas = context.get("canvas")
+
 
     try:
         if ast["instruction"] == "if":
@@ -14,7 +16,7 @@ def execute(ast, context=None):
             try:
                 if eval(condition, {}, context):
                     for instruction in ast["body"]:
-                        result = execute(instruction['ast'], context)
+                        result = execute(instruction['ast'], context,timer)
                         
             except Exception as e:
                 return {"error" : f"Invalid condition for if : {e}"}
@@ -32,7 +34,7 @@ def execute(ast, context=None):
             for i in range(range_start, range_end):
                 context[variable] = i
                 for instruction in ast["body"]:
-                    result = execute(instruction["ast"], context)
+                    result = execute(instruction["ast"], context,timer)
                     if "error" in result:
                         return result
 
@@ -74,6 +76,9 @@ def execute(ast, context=None):
                         cursor.draw_line(taille)
                     else:
                         return {"error": f"Shape '{shape}' is not recognized."}
+                    if timer :
+                        time.sleep(timer)
+                        canvas.update()
                 except Exception as e:
                     return {"error": f"Failed to draw shape '{shape}': {e}"}
 

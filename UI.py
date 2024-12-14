@@ -2,6 +2,7 @@ import tkinter as tk
 import math
 from tkinter import ttk, filedialog, messagebox,simpledialog
 import os
+import time
 
 from instruction import Cursor
 from execute import execute
@@ -41,9 +42,13 @@ class Application:
         # Canvas menu
         self.menu_fichier = tk.Menu(self.menu_barre, tearoff=0)
         self.menu_barre.add_cascade(label="Canvas", menu=self.menu_fichier)
-        self.menu_fichier.add_command(label="Animate", command=print())
+        self.menu_fichier.add_command(label="Animate", command=self.animate_canvas)
+        self.menu_fichier.add_separator()
         self.menu_fichier.add_command(label="Zoom in", command=self.zoom_in)
         self.menu_fichier.add_command(label="Zoom out", command=self.zoom_out)
+        self.menu_fichier.add_command(label="Turn right", command=print())
+        self.menu_fichier.add_command(label="Turn left", command=print())
+        self.menu_fichier.add_separator()
         self.menu_fichier.add_command(label="Full screen", command=self.canvas_fullscreen)
         self.menu_fichier.add_command(label="Exit Full screen", command=self.restore_layout)
 
@@ -78,11 +83,11 @@ class Application:
         self.canevas = tk.Canvas(self.cadre_1, bg="white", width=500, height=200)
         self.cadre_1.add(self.canevas)
 
-        button_zoomin = tk.Button(self.canevas,text="+",command=self.zoom_in)
-        button_zoomin.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-50)
+        self.button_zoomin = tk.Button(self.canevas,text="+",command=self.zoom_in)
+        self.button_zoomin.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-50)
 
-        button_zoomout = tk.Button(self.canevas,text="--",command=self.zoom_out)
-        button_zoomout.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
+        self.button_zoomout = tk.Button(self.canevas,text="--",command=self.zoom_out)
+        self.button_zoomout.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
 
         self.scale = 1
         self.is_fullscreen = False
@@ -100,7 +105,7 @@ class Application:
         button_exe.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
 
     #Fonction pour éxécuter le code dans la zone de texte
-    def executer_code(self):
+    def executer_code(self,timer=None):
 
         #Récupe le code
         code = self.zone_texte.get("1.0", tk.END).strip()
@@ -110,6 +115,10 @@ class Application:
 
         try:
             self.canevas.delete("all")
+
+            if timer:
+                time.sleep(timer)
+                self.canevas.update()
 
             context={"canvas": self.canevas}
 
@@ -123,8 +132,8 @@ class Application:
                     continue
 
                 #Si il y a bien un ast dans le token on reenvoie
-                context = execute(token["ast"], context)
-                
+                context = execute(token["ast"], context, timer)
+                                
                 if "error" in context :
                     #messagebox.showerror("Erreur", context["error"])
                     self.afficher_erreur(context["error"])
@@ -343,12 +352,16 @@ class Application:
 
     def animate_canvas(self):
 
-        #Proposer une boxe pour choisir la vitesse d'execution en ms
-        #Verifier qu'il n'y a pas d'erreur dans le code, que la fonction de base ne reenvoie aucune erreur
-        #Si c'est bon mettre le canva en plein ecran
-        #mettre un time.spleep dans la fonction execute avec en parametre le temps choisis
-        #remettre l'app comme de base, ' restor_layout'
-        #Et voila LOL le dessin est anime
+        timer = simpledialog.askfloat("Temps de latences","Saississez le temps (en s.) :")
+
+        self.button_zoomin.place_forget()
+        self.button_zoomout.place_forget()
+        self.canvas_fullscreen()
+        self.executer_code(timer)
+        self.restore_layout()
+
+        self.button_zoomin.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-50)
+        self.button_zoomout.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
         print()
 
 if __name__ == "__main__":
