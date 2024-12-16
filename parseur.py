@@ -43,6 +43,7 @@ def parseur(tokens, result=None):
             if isinstance(instruction, str):
 
                 instr = re.findall(r'\w+|\d+|[^\w\s]', instruction)
+                
 
                 if instr[0] == "DRAW":
                     #DRAW(cursor,form,taille,supp(taille,angle))
@@ -69,6 +70,7 @@ def parseur(tokens, result=None):
                         })
                     except Exception as e:
                         result.append({"error": f"Unexpected error in DRAW: {str(e)}"})
+                
                 
                 elif instr[0] == "MOOV":
                     #MOOV(cursor,distance)
@@ -145,22 +147,44 @@ def parseur(tokens, result=None):
                             }
                         })
                     except Exception as e:
-                        result.append({"error": f"Unexpected error in SET: {str(e)}"})
+                       result.append({"error": f"Unexpected error in SET: {str(e)}"})
 
+                
                 elif instr[0] == "if":
-                    #if(condition){...}
                     try:
-                        condition = "".join(instr[instr.index("(")+1:instr.index(")")])
-                        bod = tokens[count + 1]
-                        result.append({
-                            "ast": {
-                                "instruction": "if",
-                                "condition": condition,
-                                "body": parseur(bod),
-                            }
-                        })
+                        condition = "".join(instr[instr.index("(") + 1:instr.index(")")])  # Extraire la condition
+
+                        # Vérifie qu'il reste suffisamment d'éléments dans tokens
+                        if count + 1 >= len(tokens):
+                            result.append({"error": "Missing block for 'if' statement."})
+                            continue
+
+                        body = tokens[count + 1]  # Le bloc `{...}` après le `if`
+                        else_body = None
+
+                        # Vérifie si un bloc `else` est présent
+                        if count + 2 < len(tokens) and tokens[count + 2] == "else":
+                            if count + 3 < len(tokens):  # S'assurer que le bloc `else` existe
+                                else_body = tokens[count + 3]
+                            else:
+                                result.append({"error": "Missing block for 'else' statement."})
+                                continue
+
+                        # Construire l'AST
+                        ast_if = {
+                            "instruction": "if",
+                            "condition": condition,
+                            "body": parseur(body),
+                        }
+                        if else_body:
+                            ast_if["else"] = parseur(else_body)
+
+                        result.append({"ast": ast_if})
                     except Exception as e:
                         result.append({"error": f"Unexpected error in IF statement: {str(e)}"})
+
+                elif instr[0] == "else" : 
+                    continue
 
                 elif instr[0] == "for":
                     #for i in range(a,b){...}
@@ -195,12 +219,27 @@ def parseur(tokens, result=None):
                         })
                     except Exception as e:
                         result.append({"error": f"Unexpected error in ASSIGNMENT: {str(e)}"})
+                
+
 
                 else:
                     result.append({"error": f"Unknown instruction: {instr[0]}"})
 
         except Exception as e:
+            print(f"Error encountered while processing: {instruction}")  # Débogage
+            print(f"Exception: {e}")  # Débogage
             result.append({"error": f"General parsing error: {str(e)}"})
         count += 1
+
     return result
-    
+
+
+code = "CREATE_CURSOR(cur1,100,100,red,4);DRAW(cur1,RECTANGLE,50,100);\
+if(3>4){DRAW(cur1,RECTANGLE,50,100);}else{DRAW(cur1,RECTANGLE,50,100);}"
+t = instrctions_listed(code)
+#print("Intermediate structure:", t)  # Débogage
+tt = parseur(t)
+print(tt)
+
+
+#creer while

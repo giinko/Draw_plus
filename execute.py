@@ -14,12 +14,16 @@ def execute(ast, context=None,timer=None):
         if ast["instruction"] == "if":
             condition = ast["condition"]
             try:
-                if eval(condition, {}, context):
-                    for instruction in ast["body"]:
-                        result = execute(instruction['ast'], context,timer)
-                        
+                if eval(condition, {}, context):  # Évaluer la condition dans le contexte donné
+                    for instruction in ast["body"]:  # Exécuter les instructions dans le corps du if
+                        result = execute(instruction['ast'], context, timer)
+                else:
+                    if "else" in ast:  # Vérifier si un bloc else existe
+                        for instruction in ast["else"]:  # Exécuter les instructions dans le bloc else
+                            result = execute(instruction['ast'], context, timer)
+
             except Exception as e:
-                return {"error" : f"Invalid condition for if : {e}"}
+                return {"error": f"Invalid condition for if: {e}"}
 
         elif ast["instruction"] == "for":
             variable = ast["variable"]
