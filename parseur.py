@@ -191,9 +191,11 @@ def parseur(tokens, result=None):
                     try:
                         param = "".join(instr[instr.index("(")+1:instr.index(")")]).split(",")
                         if len(param) != 2:
-                            result.append({"error": "FOR requires exactly 2 parameters: start and end range."})
+                            result.append({"error": "While requires exactly 1 condition."})
                             continue
+
                         body = tokens[count + 1]
+                        
                         result.append({
                             "ast": {
                                 "instruction": "for",
@@ -205,7 +207,26 @@ def parseur(tokens, result=None):
                     except Exception as e:
                         result.append({"error": f"Unexpected error in FOR loop: {str(e)}"})
 
-                elif instr[1] == "=":
+                elif instr[0] == "while":
+                    #while(condition){...}
+                    try:
+                        condition = "".join(instr[instr.index("(")+1:instr.index(")")]).split(",")
+                        if len(condition) != 1:
+                            result.append({"error": "While requires exactly 1 parameters: condition."})
+                            continue
+                        body = tokens[count + 1]
+                        result.append({
+                            "ast": {
+                                "instruction": "while",
+                                "condition": condition[0],
+                                "body": parseur(body),
+                            }
+                        })
+                    except Exception as e:
+                        result.append({"error": f"Unexpected error in FOR loop: {str(e)}"})
+
+                elif len(instr) >= 2 and instr[1] == "=":
+                    
                     #nom_var = value_var
                     try:
                         nom_var = instr[0]

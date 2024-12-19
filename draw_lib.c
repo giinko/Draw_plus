@@ -45,11 +45,10 @@ Cursor create_cursor(int x, int y, const char* color_name, int thickness) {
     return cursor;
 }
 
-
 // Mouvement d'un curseur
 void move_cursor(Cursor* cursor, int distance) {
-    cursor->x += distance * cos(cursor->angle * M_PI / 180.0);
-    cursor->y += distance * sin(cursor->angle * M_PI / 180.0);
+    cursor->x = (int)round(cursor->x + distance * cos(cursor->angle * M_PI / 180.0));
+    cursor->y = (int)round(cursor->y + distance * sin(cursor->angle * M_PI / 180.0));
 }
 
 // Rotation d'un curseur
@@ -65,7 +64,7 @@ void draw_circle(Cursor cursor, int radius) {
             int dx = radius - w; 
             int dy = radius - h; 
             if ((dx * dx + dy * dy) <= (radius * radius)) {
-                SDL_RenderDrawPoint(renderer, cursor.x + dx, cursor.y + dy);
+                SDL_RenderDrawPoint(renderer, (int)round(cursor.x + dx), (int)round(cursor.y + dy));
             }
         }
     }
@@ -79,19 +78,23 @@ void draw_rectangle(Cursor cursor, int width, int height) {
 }
 
 // Dessin d'une ligne
-void draw_line(Cursor cursor, int length) {
-    int x2 = cursor.x + length * cos(cursor.angle * M_PI / 180.0);
-    int y2 = cursor.y + length * sin(cursor.angle * M_PI / 180.0);
-    SDL_SetRenderDrawColor(renderer, cursor.color.r, cursor.color.g, cursor.color.b, cursor.color.a);
-    SDL_RenderDrawLine(renderer, cursor.x, cursor.y, x2, y2);
+void draw_line(Cursor* cursor, int length) {
+    int x2 = (int)round(cursor->x + length * cos(cursor->angle * M_PI / 180.0));
+    int y2 = (int)round(cursor->y + length * sin(cursor->angle * M_PI / 180.0));
+    SDL_SetRenderDrawColor(renderer, cursor->color.r, cursor->color.g, cursor->color.b, cursor->color.a);
+    SDL_RenderDrawLine(renderer, cursor->x, cursor->y, x2, y2);
+
+    // Mise à jour de la position du curseur
+    cursor->x = x2;
+    cursor->y = y2;
 }
 
 // Dessin d'un arc
 void draw_arc(Cursor cursor, int radius, int start_angle, int extent) {
     SDL_SetRenderDrawColor(renderer, cursor.color.r, cursor.color.g, cursor.color.b, cursor.color.a);
     for (int angle = start_angle; angle < start_angle + extent; angle++) {
-        int x = cursor.x + radius * cos(angle * M_PI / 180.0);
-        int y = cursor.y + radius * sin(angle * M_PI / 180.0);
+        int x = (int)round(cursor.x + radius * cos(angle * M_PI / 180.0));
+        int y = (int)round(cursor.y + radius * sin(angle * M_PI / 180.0));
         SDL_RenderDrawPoint(renderer, x, y);
     }
 }

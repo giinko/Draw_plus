@@ -1,109 +1,112 @@
 from parseur import instrctions_listed,parseur
 
 
-def generate_c_code(ast_list, output_file="output.c"):
+def generate_c_code(ast, window_width=800, window_height=600, window_title="Drawing Window"):
     """
-    Génère le code C à partir de l'AST (liste des instructions).
+    Générateur de code C complet à partir de l'AST.
+    :param ast: L'AST généré par le parseur.
+    :param window_width: Largeur de la fenêtre SDL.
+    :param window_height: Hauteur de la fenêtre SDL.
+    :param window_title: Titre de la fenêtre SDL.
+    :return: Le code C sous forme de chaîne.
     """
-    # Début du code C
-    code = [
-        '#include "draw_lib.h"',
-        "",
-        "int main() {",
-        '    // Initialisation de la fenêtre graphique',
-        '    if (!initialize_graphics(800, 600, "Draw++ Output")) {',
-        "        return -1;",
-        "    }",
-        "",
-        "    // Nettoyage de l'écran avec une couleur blanche",
-        "    clear_screen((SDL_Color){255, 255, 255, 255});",
-        ""
-    ]
+    c_code = f"""#include "draw_lib.h"
+#include <stdio.h>
+#include <math.h>
 
-    # Dictionnaire des curseurs créés
-    cursors = {}
+int main() {{
+    // Initialisation de la fenêtre
+    if (!initialize_graphics({window_width}, {window_height}, "{window_title}")) {{
+        fprintf(stderr, "Échec de l'initialisation graphique\\n");
+        return 1;
+    }}
 
-    # Parcourir les instructions de l'AST
-    for ast in ast_list:
-        ast = ast["ast"]
-        if ast["instruction"] == "CREATE_CURSOR":
-            # Créer un curseur
-            name = ast["name"]
-            x = ast["x"]
-            y = ast["y"]
-            color = ast["color"]
-            thickness = ast["epaisseur"]
-            cursors[name] = True
-            code.append(f'    Cursor {name} = create_cursor({x}, {y}, "{color}", {thickness});')
+    SDL_Color background_color = get_color("white");  // Fond blanc par défaut
+    clear_screen(background_color);
 
-        elif ast["instruction"] == "DRAW":
-            # Dessiner une forme
-            cursor = ast["cursor"]
-            if cursor not in cursors:
-                raise ValueError(f"Cursor '{cursor}' n'a pas été créé avant son utilisation.")
-            shape = ast["FORM"]
-            size = ast["TAILLE"]
-            if shape == "CIRCLE":
-                code.append(f'    draw_circle({cursor}, {size});')
-            elif shape == "RECTANGLE":
-                additional = ast["Info_supp"]
-                code.append(f'    draw_rectangle({cursor}, {size}, {additional});')
-            elif shape == "ARC_CIRCLE":
-                additional = ast["Info_supp"]
-                code.append(f'    draw_arc({cursor}, {size}, 0, {additional});')
-            elif shape == "LINE":
-                code.append(f'    draw_line({cursor}, {size});')
-            else:
-                raise ValueError(f"Forme non supportée : {shape}")
+    // Déclaration des curseurs
+"""
+    indentation = "    "  # Indentation pour les blocs internes
 
-        elif ast["instruction"] == "MOOV":
-            # Déplacer un curseur
-            cursor = ast["cursor"]
-            distance = ast["distance"]
-            if cursor not in cursors:
-                raise ValueError(f"Cursor '{cursor}' n'a pas été créé avant son utilisation.")
-            code.append(f'    move_cursor(&{cursor}, {distance});')
+    def generate_block(ast_block, indent_level=1):
+        block_code = ""
+        current_indent = indentation * indent_level
 
-        elif ast["instruction"] == "ROTATE":
-            # Tourner un curseur
-            cursor = ast["name_cursor"]
-            angle = ast["angle"]
-            if cursor not in cursors:
-                raise ValueError(f"Cursor '{cursor}' n'a pas été créé avant son utilisation.")
-            code.append(f'    rotate_cursor(&{cursor}, {angle});')
+        for instruction in ast_block:
+            if "error" in instruction:
+                block_code += f"{current_indent}// ERROR: {instruction['error']}\n"
+                continue
 
-        else:
-            raise ValueError(f"Instruction non supportée : {ast['instruction']}")
+            node = instruction["ast"]
+            instr_type = node["instruction"]
 
-    # Ajouter la mise à jour de l'écran et le nettoyage des ressources
-    code.append("")
-    code.append("    // Mettre à jour l'écran et attendre 5 secondes")
-    code.append("    update_screen();")
-    code.append("    SDL_Delay(5000);")
-    code.append("")
-    code.append("    // Nettoyage des ressources graphiques")
-    code.append("    cleanup_graphics();")
-    code.append("")
-    code.append("    return 0;")
-    code.append("}")
+            if instr_type == "CREATE_CURSOR":
+                block_code += f'{current_indent}Cursor {node["name"]} = create_cursor({node["x"]}, {node["y"]}, "{node["color"]}", {node["epaisseur"]});\n'
 
-    # Écrire dans un fichier
-    with open(output_file, "w") as f:
-        f.write("\n".join(code))
+            elif instr_type == "DRAW":
+                shape = node["FORM"].upper()
+                if shape == "CIRCLE":
+                    block_code += f'{current_indent}draw_circle({node["cursor"]}, {node["TAILLE"]});\n'
+                elif shape == "RECTANGLE":
+                    block_code += f'{current_indent}draw_rectangle({node["cursor"]}, {node["TAILLE"]}, {node["Info_supp"]});\n'
+                elif shape == "LINE":
+                    block_code += f'{current_indent}draw_line(&{node["cursor"]}, {node["TAILLE"]});\n'
+                else:
+                    block_code += f"{current_indent}// Shape '{shape}' non supportée\n"
 
-    print(f"Code C généré avec succès dans {output_file}.")
+            elif instr_type == "MOOV":
+                block_code += f'{current_indent}move_cursor(&{node["cursor"]}, {node["distance"]});\n'
+
+            elif instr_type == "ROTATE":
+                block_code += f'{current_indent}rotate_cursor(&{node["name_cursor"]}, {node["angle"]});\n'
+
+            elif instr_type == "ASSIGN":
+                block_code += f'{current_indent}int {node["variable"]} = {node["value"]};\n'
+
+            elif instr_type == "if":
+                block_code += f'{current_indent}if ({node["condition"]}) {{\n'
+                block_code += generate_block(node["body"], indent_level + 1)
+                block_code += f'{current_indent}}}\n'
+                if "else" in node:
+                    block_code += f'{current_indent}else {{\n'
+                    block_code += generate_block(node["else"], indent_level + 1)
+                    block_code += f'{current_indent}}}\n'
+
+            elif instr_type == "for":
+                block_code += f'{current_indent}for (int {node["variable"]} = {node["range"][0]}; {node["variable"]} < {node["range"][1]}; ++{node["variable"]}) {{\n'
+                block_code += generate_block(node["body"], indent_level + 1)
+                block_code += f'{current_indent}}}\n'
+
+            elif instr_type == "while":
+                block_code += f'{current_indent}while ({node["condition"]}) {{\n'
+                block_code += generate_block(node["body"], indent_level + 1)
+                block_code += f'{current_indent}}}\n'
+
+        return block_code
+
+    # Générer le bloc principal du programme
+    c_code += generate_block(ast)
+
+    # Finalisation
+    c_code += f"""
+    update_screen();
+    SDL_Delay(5000);  // Attendre 5 secondes avant de quitter
+    cleanup_graphics();
+    return 0;
+}}
+"""
+    return c_code
 
 
-# Exemple d'utilisation
-if __name__ == "__main__":
-
-    code = "CREATE_CURSOR(cur1,100,100,red,4);DRAW(cur1,RECTANGLE,50,100);MOOV(cur1,100);DRAW(cur1,RECTANGLE,50,100);"
-    t = instrctions_listed(code)
-
-    tt= parseur(t)
-
-    # Génération du code C
-
-    generate_c_code(tt)
-
-# cree if else et for !! ouin ouin 
+def write_c_file(code_c, file_name="output.c"):
+    """
+    Écrit le code C dans un fichier spécifié.
+    :param code_c: Le code C sous forme de chaîne.
+    :param file_name: Le nom du fichier où écrire le code.
+    """
+    try:
+        with open(file_name, "w", encoding="utf-8") as file:
+            file.write(code_c)
+        print(f"Le code a été sauvegardé dans le fichier '{file_name}'.")
+    except Exception as e:
+        print(f"Erreur lors de l'écriture dans le fichier: {str(e)}")

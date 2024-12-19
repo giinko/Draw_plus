@@ -42,6 +42,19 @@ def execute(ast, context=None,timer=None):
                     if "error" in result:
                         return result
 
+        elif ast["instruction"] == "while":
+            condition_expr = ast["condition"]  
+            
+            try:
+                while eval(condition_expr, {}, context):  
+                    for instruction in ast["body"]:
+                        result = execute(instruction["ast"], context, timer)
+                        if "error" in result:
+                            return result  
+            except Exception as e:
+                return {"error": f"Invalid values in condition for while loop: {e}"}
+
+
         elif ast["instruction"] == "ASSIGN":
             var_name = ast["variable"]
             expression = ast["value"]

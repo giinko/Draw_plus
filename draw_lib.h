@@ -25,7 +25,7 @@ SDL_Color get_color(const char* color_name);
 // Dessin de formes
 void draw_circle(Cursor cursor, int radius);
 void draw_rectangle(Cursor cursor, int width, int height);
-void draw_line(Cursor cursor, int length);
+void draw_line(Cursor* cursor, int length);
 void draw_arc(Cursor cursor, int radius, int start_angle, int extent);
 void draw_polygon(Cursor cursor, const int* points, int num_points);
 void draw_text(Cursor cursor, const char* text);

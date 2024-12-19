@@ -7,6 +7,7 @@ import time
 from instruction import Cursor
 from execute import execute
 from parseur import instrctions_listed,parseur
+from generate_c import write_c_file,generate_c_code
 
 
 class Application:
@@ -36,6 +37,7 @@ class Application:
         self.menu_fichier.add_command(label="Save",command=self.enregistrer_fichier)
         self.menu_fichier.add_command(label="Delete File", command=self.supprimer_fichier)
         self.menu_fichier.add_command(label="Remove Folder",command=self.supprimer_dossier)
+        self.menu_fichier.add_command(label="Compile file",command=self.comp_c)
         self.menu_fichier.add_separator()
         self.menu_fichier.add_command(label="Quitter", command=self.root.quit)
 
@@ -362,7 +364,35 @@ class Application:
 
         self.button_zoomin.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-50)
         self.button_zoomout.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
-        print()
+        
+
+    def comp_c(self):
+        #Récupe le code
+        code = self.zone_texte.get("1.0", tk.END).strip()
+        if not code:
+            messagebox.showerror("Erreur", "Veuillez écrire du code avant d'exécuter.")
+            return
+
+        #Vérifier aucune erreur dans l'ast sinon on compile pas et on reenvoie l'erreur
+
+        #tokeninze le code
+        #parser le code
+        #
+
+        try:
+
+            toks = instrctions_listed(code)
+            tokens = parseur(toks)
+            #si erreur dans le token pas de comp
+            code_c = generate_c_code(tokens)
+
+            write_c_file(code_c)
+            
+                        
+            self.afficher_erreur("[Compilation is done]")
+
+        except Exception as e:
+            messagebox.showerror("Erreur", f"Erreur lors de la compilation : {e}")
 
 if __name__ == "__main__":
     root = tk.Tk()
