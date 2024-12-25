@@ -253,14 +253,3 @@ def parseur(tokens, result=None):
         count += 1
 
     return result
-
-
-code = "CREATE_CURSOR(cur1,100,100,red,4);DRAW(cur1,RECTANGLE,50,100);\
-if(3>4){DRAW(cur1,RECTANGLE,50,100);}else{DRAW(cur1,RECTANGLE,50,100);}"
-t = instrctions_listed(code)
-#print("Intermediate structure:", t)  # Débogage
-tt = parseur(t)
-print(tt)
-
-
-#creer while

@@ -1,6 +1,3 @@
-from parseur import instrctions_listed,parseur
-
-
 def generate_c_code(ast, window_width=800, window_height=600, window_title="Drawing Window"):
     """
     Générateur de code C complet à partir de l'AST.
@@ -15,16 +12,12 @@ def generate_c_code(ast, window_width=800, window_height=600, window_title="Draw
 #include <math.h>
 
 int main() {{
-    // Initialisation de la fenêtre
+    // Initialize the window
     if (!initialize_graphics({window_width}, {window_height}, "{window_title}")) {{
         fprintf(stderr, "Échec de l'initialisation graphique\\n");
         return 1;
     }}
 
-    SDL_Color background_color = get_color("white");  // Fond blanc par défaut
-    clear_screen(background_color);
-
-    // Déclaration des curseurs
 """
     indentation = "    "  # Indentation pour les blocs internes
 
@@ -41,15 +34,19 @@ int main() {{
             instr_type = node["instruction"]
 
             if instr_type == "CREATE_CURSOR":
+                block_code += f'{current_indent}// Create a new cursor\n'
                 block_code += f'{current_indent}Cursor {node["name"]} = create_cursor({node["x"]}, {node["y"]}, "{node["color"]}", {node["epaisseur"]});\n'
 
             elif instr_type == "DRAW":
                 shape = node["FORM"].upper()
                 if shape == "CIRCLE":
-                    block_code += f'{current_indent}draw_circle({node["cursor"]}, {node["TAILLE"]});\n'
+                    block_code += f'{current_indent}// Draw a circle\n'
+                    block_code += f'{current_indent}draw_circle(&{node["cursor"]}, {node["TAILLE"]});\n'
                 elif shape == "RECTANGLE":
-                    block_code += f'{current_indent}draw_rectangle({node["cursor"]}, {node["TAILLE"]}, {node["Info_supp"]});\n'
+                    block_code += f'{current_indent}// Draw a rectangle\n'
+                    block_code += f'{current_indent}draw_rectangle(&{node["cursor"]}, {node["TAILLE"]}, {node["Info_supp"]});\n'
                 elif shape == "LINE":
+                    block_code += f'{current_indent}// Draw a line\n'
                     block_code += f'{current_indent}draw_line(&{node["cursor"]}, {node["TAILLE"]});\n'
                 else:
                     block_code += f"{current_indent}// Shape '{shape}' non supportée\n"
@@ -89,9 +86,11 @@ int main() {{
 
     # Finalisation
     c_code += f"""
-    update_screen();
-    SDL_Delay(5000);  // Attendre 5 secondes avant de quitter
-    cleanup_graphics();
+    // Update the window
+    SDL_RenderPresent(renderer);
+    SDL_Delay(5000);  // Wait 5 second before closing the window
+    cleanup_graphics(); // Close the window
+
     return 0;
 }}
 """
@@ -110,3 +109,15 @@ def write_c_file(code_c, file_name="output.c"):
         print(f"Le code a été sauvegardé dans le fichier '{file_name}'.")
     except Exception as e:
         print(f"Erreur lors de l'écriture dans le fichier: {str(e)}")
+
+
+""" EXEMPLE OF USE :
+from parseur import instrctions_listed,parseur
+
+code = "CREATE_CURSOR(cur1,100,100,blue,5);DRAW(cur1,RECTANGLE,50,100);\
+if(3>4){DRAW(cur1,RECTANGLE,100,100);}else{DRAW(cur1,RECTANGLE,100,50);}"
+code = parseur(instrctions_listed(code)) 
+
+aaa = generate_c_code(code)
+write_c_file(aaa) 
+"""
