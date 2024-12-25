@@ -158,4 +158,7 @@ void draw_line(Cursor* cursor, int distance) {
 
         SDL_RenderDrawLine(renderer, cursor->x + offset_x, cursor->y + offset_y, new_x + offset_x, new_y + offset_y);
     }
+
+    cursor->x = new_x;
+    cursor->y = new_y;
 }
