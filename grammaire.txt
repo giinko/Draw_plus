@@ -1,7 +1,13 @@
-<programme>        ::= <instruction>+ | <control_flow>+ | <instruction>* <control_flow>*
+<programme>        ::= <instruction>+ 
+                   | <control_flow>+ 
+                   | <instruction>* <control_flow>* 
 
-
-<instruction>      ::= <create_cursor> ";" | <moov> ";" | <rotate> ";" | <draw> ";" | <set> ";" | <assign> ";"
+<instruction>      ::= <create_cursor> ";" 
+                   | <moov> ";" 
+                   | <rotate> ";" 
+                   | <draw> ";" 
+                   | <set> ";" 
+                   | <assign> ";"
 
 <create_cursor>    ::= "CREATE_CURSOR(" <name> "," <x> "," <y> "," <color> "," <thickness> ")"
                        // Vérification : exactement 5 arguments
@@ -9,15 +15,16 @@
                        // Vérification : exactement 2 arguments
 <rotate>           ::= "ROTATE(" <cursor> "," <angle> ")"
                        // Vérification : exactement 2 arguments
-<draw>             ::= "DRAW(" <cursor> "," <form> "," <taille> ["," <Info_supp> "]")
+<draw>             ::= "DRAW(" <cursor> "," <form> "," <taille> ["," <Info_supp> "]") 
                        // Vérification : 4 arguments pour rectangle et arc, 3 pour les autres
                        // Vérification : La forme doit être "circle", "square", "rectangle", "arc", "line"
 <set>              ::= "#SET(" <cursor> "," <x> "," <y> "," <color> "," <thickness> ")"
                        // Vérification : exactement 5 arguments
 <assign>           ::= <variable> "=" <expression>
 
-
-<control_flow>     ::= <if> | <while> | <for>
+<control_flow>     ::= <if> 
+                   | <while> 
+                   | <for>
 
 <if>               ::= "if" "(" <condition> ")" "{" <instruction>* "}" <else_block>?
                        // Vérification : présence d'instructions dans le bloc "if"
@@ -28,10 +35,9 @@
 
 <while>            ::= "while" "(" <condition> ")" "{" <instruction>* "}"
                        // Vérification : une seule condition entre parenthèses
-
+                       
 <for>              ::= "for" "(" <variable> "=" <start> "," <end> ")" "{" <instruction>* "}"
                        // Vérification : une seule condition entre parenthèses
-
 
 <name>             ::= <identifier>
 <cursor>           ::= <name> | <identifier>
@@ -54,14 +60,17 @@
 <string>           ::= '"' <letter_or_digit>* '"'
 <expression>       ::= <variable> | <number> | <string> | <operation>
 
-<operation>        ::= <expression> "+" <expression> | <expression> "-" <expression> | <expression> "*" <expression> | <expression> "/" <expression>
+<operation>        ::= <expression> "+" <expression>
+                   | <expression> "-" <expression>
+                   | <expression> "*" <expression>
+                   | <expression> "/" <expression>
 
-Exemple of valid program : 
+Exemple of valid program :
 
-CREATE_CURSOR("cursor1", 10, 20, "red", 2);
-MOOV("cursor1", 5);
-if (x < 10) {
-    DRAW("cursor1", "circle", 10);
-} else {
-    ROTATE("cursor1", 90);
-}
+    CREATE_CURSOR("cursor1", 10, 20, "red", 2);
+    MOOV("cursor1", 5);
+    if (x < 10) {
+        DRAW("cursor1", "circle", 10);
+    } else {
+        ROTATE("cursor1", 90);
+    }
