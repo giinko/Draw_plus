@@ -1,6 +1,5 @@
-<programme>        ::= <instruction>+ 
-                   | <control_flow>+ 
-                   | <instruction>* <control_flow>* 
+<programme>        ::= (<instruction> | <control_flow>)+
+
 
 <instruction>      ::= <create_cursor> ";" 
                    | <moov> ";" 
@@ -13,13 +12,20 @@
                        // Vérification : exactement 5 arguments
 <moov>             ::= "MOOV(" <cursor> "," <distance> ")"
                        // Vérification : exactement 2 arguments
+                       // Vérification logique : <cursor> doit avoir été défini par une commande CREATE_CURSOR avant d'être utilisé.
 <rotate>           ::= "ROTATE(" <cursor> "," <angle> ")"
                        // Vérification : exactement 2 arguments
+                       // Vérification logique : <cursor> doit avoir été défini par une commande CREATE_CURSOR avant d'être utilisé.
 <draw>             ::= "DRAW(" <cursor> "," <form> "," <taille> ["," <Info_supp> "]") 
-                       // Vérification : 4 arguments pour rectangle et arc, 3 pour les autres
+                       // Vérifications: 
+                       // - Rectangle : nécessite Info_supp (largeur)
+                       // - Arc : nécessite Info_supp (angle)
+                       // - Les autres formes ne doivent pas inclure Info_supp
                        // Vérification : La forme doit être "circle", "square", "rectangle", "arc", "line"
+                       // Vérification logique : <cursor> doit avoir été défini par une commande CREATE_CURSOR avant d'être utilisé.
 <set>              ::= "#SET(" <cursor> "," <x> "," <y> "," <color> "," <thickness> ")"
                        // Vérification : exactement 5 arguments
+                       // Vérification logique : <cursor> doit avoir été défini par une commande CREATE_CURSOR avant d'être utilisé.
 <assign>           ::= <variable> "=" <expression>
 
 <control_flow>     ::= <if> 
@@ -36,11 +42,12 @@
 <while>            ::= "while" "(" <condition> ")" "{" <instruction>* "}"
                        // Vérification : une seule condition entre parenthèses
                        
-<for>              ::= "for" "(" <variable> "=" <start> "," <end> ")" "{" <instruction>* "}"
+<for>              ::= "for" <variable> "in range(" <start> "," <end> ")" "{" <instruction>* "}"
                        // Vérification : une seule condition entre parenthèses
 
 <name>             ::= <identifier>
-<cursor>           ::= <name> | <identifier>
+<cursor>           ::= "Cursor" "(" <name> "," <x> "," <y> "," <color> "," <thickness> ")"  
+                       // Angle est implicite et défini par défaut à 0 dans l'implémentation
 <distance>         ::= <number>
 <angle>            ::= <number>
 <taille>           ::= <number>
@@ -48,7 +55,7 @@
 <variable>         ::= <identifier>
 <start>            ::= <number>
 <end>              ::= <number>
-<Info_supp>        ::= <number> | <angle>
+<Info_supp>        ::= <number>     // Largeur (rectangle) ou angle (arc)
 <color>            ::= "red" | "blue" | "green" | "yellow" | "black" | "white" | <string>
 <form>             ::= "circle" | "square" | "rectangle" | "arc" | "line"
 
@@ -64,13 +71,4 @@
                    | <expression> "-" <expression>
                    | <expression> "*" <expression>
                    | <expression> "/" <expression>
-
-Exemple of valid program :
-
-    CREATE_CURSOR("cursor1", 10, 20, "red", 2);
-    MOOV("cursor1", 5);
-    if (x < 10) {
-        DRAW("cursor1", "circle", 10);
-    } else {
-        ROTATE("cursor1", 90);
-    }
+                   
