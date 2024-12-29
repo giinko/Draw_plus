@@ -10,12 +10,15 @@
 
 <create_cursor>    ::= "CREATE_CURSOR(" <name> "," <x> "," <y> "," <color> "," <thickness> ")"
                        // Vérification : exactement 5 arguments
+
 <moov>             ::= "MOOV(" <cursor> "," <distance> ")"
                        // Vérification : exactement 2 arguments
                        // Vérification logique : <cursor> doit avoir été défini par une commande CREATE_CURSOR avant d'être utilisé.
+
 <rotate>           ::= "ROTATE(" <cursor> "," <angle> ")"
                        // Vérification : exactement 2 arguments
                        // Vérification logique : <cursor> doit avoir été défini par une commande CREATE_CURSOR avant d'être utilisé.
+
 <draw>             ::= "DRAW(" <cursor> "," <form> "," <taille> ["," <Info_supp> "]") 
                        // Vérifications: 
                        // - Rectangle : nécessite Info_supp (largeur)
@@ -23,9 +26,11 @@
                        // - Les autres formes ne doivent pas inclure Info_supp
                        // Vérification : La forme doit être "circle", "square", "rectangle", "arc", "line"
                        // Vérification logique : <cursor> doit avoir été défini par une commande CREATE_CURSOR avant d'être utilisé.
-<set>              ::= "#SET(" <cursor> "," <x> "," <y> "," <color> "," <thickness> ")"
+
+<set>              ::= "SET(" <cursor> "," <x> "," <y> "," <color> "," <thickness> ")"
                        // Vérification : exactement 5 arguments
                        // Vérification logique : <cursor> doit avoir été défini par une commande CREATE_CURSOR avant d'être utilisé.
+
 <assign>           ::= <variable> "=" <expression>
 
 <control_flow>     ::= <if> 
@@ -45,30 +50,40 @@
 <for>              ::= "for" <variable> "in range(" <start> "," <end> ")" "{" <instruction>* "}"
                        // Vérification : une seule condition entre parenthèses
 
-<name>             ::= <identifier>
-<cursor>           ::= "Cursor" "(" <name> "," <x> "," <y> "," <color> "," <thickness> ")"  
-                       // Angle est implicite et défini par défaut à 0 dans l'implémentation
-<distance>         ::= <number>
-<angle>            ::= <number>
-<taille>           ::= <number>
-<condition>        ::= <expression>
-<variable>         ::= <identifier>
-<start>            ::= <number>
-<end>              ::= <number>
-<Info_supp>        ::= <number>     // Largeur (rectangle) ou angle (arc)
-<color>            ::= "red" | "blue" | "green" | "yellow" | "black" | "white" | <string>
-<form>             ::= "circle" | "square" | "rectangle" | "arc" | "line"
-
-<identifier>       ::= <letter> <letter_or_digit>*
 <letter>           ::= "a" | "b" | "c" | ... | "z" | "A" | "B" | ... | "Z"
-<letter_or_digit>  ::= <letter> | <digit>
 <digit>            ::= "0" | "1" | "2" | ... | "9"
+<identifier>       ::= <letter> | <digit>
 <number>           ::= <digit>+
-<string>           ::= '"' <letter_or_digit>* '"'
-<expression>       ::= <variable> | <number> | <string> | <operation>
+<string>           ::= '"' <identifier>+ '"'
 
 <operation>        ::= <expression> "+" <expression>
                    | <expression> "-" <expression>
                    | <expression> "*" <expression>
                    | <expression> "/" <expression>
+
+<expression>       ::= <variable> | <number> | <string> | <operation>
+
+<condition>        ::= <expression> ">" <expression>
+                   | <expression> ">=" <expression>
+                   | <expression> "<" <expression>
+                   | <expression> "<=" <expression>
+                   | <expression> "==" <expression>
+                   | <expression> "!=" <expression>
+
+<name>             ::= <identifier>
+<x>                ::= <number>
+<y>                ::= <number>
+<color>            ::= "red" | "blue" | "green" | "yellow" | "black" | ... | "white"
+<thickness>        ::= <number>
+<angle>            ::= <number>
+<cursor>           ::= "Cursor" "(" <name> "," <x> "," <y> "," <color> "," <thickness> ")"  
+                       // Angle est implicite et défini par défaut à 0 dans l'implémentation
+
+<distance>         ::= <number>
+<form>             ::= "circle" | "square" | "rectangle" | "arc" | "line"
+<taille>           ::= <number>
+<Info_supp>        ::= <number>     // Largeur (rectangle) ou angle (arc)
+<variable>         ::= <identifier>
+<start>            ::= <number>
+<end>              ::= <number>
                    
