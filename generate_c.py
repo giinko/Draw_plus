@@ -46,6 +46,9 @@ int main() {{
                 elif shape == "SQUARE":
                     block_code += f'{current_indent}// Draw a square\n'
                     block_code += f'{current_indent}draw_square(&{node["cursor"]}, {node["TAILLE"]});\n'
+                elif shape == "ARC_CIRCLE":
+                    block_code += f'{current_indent}// Draw an arc circle\n'
+                    block_code += f'{current_indent}draw_arc(&{node["cursor"]}, {node["TAILLE"]}, 0, {node["Info_supp"]});\n'
                 elif shape == "RECTANGLE":
                     block_code += f'{current_indent}// Draw a rectangle\n'
                     block_code += f'{current_indent}draw_rectangle(&{node["cursor"]}, {node["TAILLE"]}, {node["Info_supp"]});\n'
