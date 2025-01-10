@@ -253,3 +253,22 @@ def parseur(tokens, result=None):
         count += 1
 
     return result
+
+"""
+Exemple of usage :
+code = "CREATE_CURSOR(c1,0,0,red,1);\
+MOOV(c1,100);\
+{\
+    DRAW(c1,square,50);\
+    ROTATE(c1,90);\
+    {\
+        DRAW(c1,rectangle,50,30);\
+    }\
+    MOOV(c1,50);\
+}\
+SET(c1,0,0,blue,2);"
+code = instrctions_listed(code)
+print(code)
+code = parseur(code)
+print(code)  
+"""

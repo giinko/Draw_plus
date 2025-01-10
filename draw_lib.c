@@ -92,8 +92,6 @@ SDL_Color get_color_SDL(const char* color_name) {
 
 // Creates a new cursor
 Cursor create_cursor(int x, int y, char* color_name, int thickness) {
-    SDL_Color color = get_color_SDL(color_name);
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     Cursor cursor = {x, y, color_name, thickness};
     return cursor;
 }
@@ -119,6 +117,8 @@ void draw_circle(Cursor* cursor, int radius) {
 
 // Draws a rectangle with adjustable thickness
 void draw_rectangle(Cursor* cursor, int width, int height) {
+    SDL_Color color = get_color_SDL(cursor->color_name);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     for (int i = 0; i < cursor->thickness; i++) {
         SDL_Rect rect = {cursor->x - i, cursor->y - i, width + 2 * i, height + 2 * i};
         SDL_RenderDrawRect(renderer, &rect);
@@ -135,6 +135,8 @@ void draw_arc(Cursor* cursor, int radius, int start_angle, int end_angle) {
 
 // Draws a point with adjustable thickness
 void draw_point(Cursor* cursor) {
+    SDL_Color color = get_color_SDL(cursor->color_name);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     for (int dx = -cursor->thickness / 2; dx <= cursor->thickness / 2; dx++) {
         for (int dy = -cursor->thickness / 2; dy <= cursor->thickness / 2; dy++) {
             SDL_RenderDrawPoint(renderer, cursor->x + dx, cursor->y + dy);
@@ -144,6 +146,8 @@ void draw_point(Cursor* cursor) {
 
 // Draws a line with adjustable thickness
 void draw_line(Cursor* cursor, int distance) {
+    SDL_Color color = get_color_SDL(cursor->color_name);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     int new_x = round(cursor->x + distance * cos(cursor->angle * M_PI / 180.0));
     int new_y = round(cursor->y + distance * sin(cursor->angle * M_PI / 180.0));
 
