@@ -10,20 +10,14 @@ int main() {
     }
 
     // Create a new cursor
-    Cursor cur1 = create_cursor(100, 100, "red", 4);
-    // Create a new cursor
-    Cursor cur2 = create_cursor(100, 100, "blue", 4);
-    // Draw a line
-    draw_line(&cur1, 100);
-    rotate_cursor(&cur1, 90);
-    // Draw a line
-    draw_line(&cur1, 100);
-    rotate_cursor(&cur1, 90);
-    // Draw a line
-    draw_line(&cur1, 100);
-    rotate_cursor(&cur1, 90);
-    // Draw a line
-    draw_line(&cur1, 100);
+    Cursor cur1 = create_cursor(100, 100, "black", 5);
+    int x = 3;
+    while (x<5) {
+        move_cursor(&cur1, 100);
+        // Draw a square
+        draw_square(&cur1, 25);
+        x = x+1;
+    }
 
     // Update the window
     SDL_RenderPresent(renderer);

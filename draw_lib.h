@@ -33,6 +33,7 @@ void rotate_cursor(Cursor* cursor, int angle);
 // Fonctions de dessin
 void draw_circle(Cursor* cursor, int radius);
 void draw_rectangle(Cursor* cursor, int width, int height);
+void draw_square(Cursor* cursor, int width);
 void draw_arc(Cursor* cursor, int radius, int start_angle, int end_angle);
 void draw_point(Cursor* cursor);
 void draw_line(Cursor* cursor, int distance);

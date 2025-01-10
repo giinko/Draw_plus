@@ -20,6 +20,7 @@ int main() {{
 
 """
     indentation = "    "  # Indentation pour les blocs internes
+    declared_variables = set()  # Ensemble pour suivre les variables déjà déclarées
 
     def generate_block(ast_block, indent_level=1):
         block_code = ""
@@ -42,6 +43,9 @@ int main() {{
                 if shape == "CIRCLE":
                     block_code += f'{current_indent}// Draw a circle\n'
                     block_code += f'{current_indent}draw_circle(&{node["cursor"]}, {node["TAILLE"]});\n'
+                elif shape == "SQUARE":
+                    block_code += f'{current_indent}// Draw a square\n'
+                    block_code += f'{current_indent}draw_square(&{node["cursor"]}, {node["TAILLE"]});\n'
                 elif shape == "RECTANGLE":
                     block_code += f'{current_indent}// Draw a rectangle\n'
                     block_code += f'{current_indent}draw_rectangle(&{node["cursor"]}, {node["TAILLE"]}, {node["Info_supp"]});\n'
@@ -58,7 +62,16 @@ int main() {{
                 block_code += f'{current_indent}rotate_cursor(&{node["name_cursor"]}, {node["angle"]});\n'
 
             elif instr_type == "ASSIGN":
-                block_code += f'{current_indent}int {node["variable"]} = {node["value"]};\n'
+                # Vérification si la variable a déjà été déclarée
+                variable_name = node["variable"]
+                value = node["value"]
+                if variable_name in declared_variables:
+                    # Si la variable existe déjà, ne pas redéclarer
+                    block_code += f'{current_indent}{variable_name} = {value};\n'
+                else:
+                    # Sinon, déclarer la variable et l'ajouter au set
+                    block_code += f'{current_indent}int {variable_name} = {value};\n'
+                    declared_variables.add(variable_name)
 
             elif instr_type == "if":
                 block_code += f'{current_indent}if ({node["condition"]}) {{\n'
@@ -95,6 +108,7 @@ int main() {{
 }}
 """
     return c_code
+
 
 
 def write_c_file(code_c, file_name="output.c"):

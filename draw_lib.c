@@ -125,6 +125,16 @@ void draw_rectangle(Cursor* cursor, int width, int height) {
     }
 }
 
+// Draws a rectangle with adjustable thickness
+void draw_square(Cursor* cursor, int width) {
+    SDL_Color color = get_color_SDL(cursor->color_name);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    for (int i = 0; i < cursor->thickness; i++) {
+        SDL_Rect rect = {cursor->x - i, cursor->y - i, width + 2 * i, width + 2 * i};
+        SDL_RenderDrawRect(renderer, &rect);
+    }
+}
+
 // Draws an arc with adjustable thickness
 void draw_arc(Cursor* cursor, int radius, int start_angle, int end_angle) {
     uint32_t color = get_color(cursor->color_name);
