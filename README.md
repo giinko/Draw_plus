@@ -31,9 +31,9 @@ Ce document a pour objectif d’expliquer comment utiliser Draw++ et son IDE, ai
     ```bash
     git clone https://github.com/nom_utilisateur/drawplusplus.git
     ```
-2. Installez les dépendances :
+2. Installez tkinter :
     ```bash
-    pip install -r requirements.txt
+    pip install tk
     ```
 3. Installez SDL2 sur votre système :
     - **Linux (Ubuntu/Debian)** :
@@ -183,11 +183,12 @@ for (var in range(start, end)) {
 - **New File** : Crée un nouveau fichier Draw++.
 - **Open Folder** : Ouvre un dossier pour naviguer dans les fichiers existants.
 - **Save** : Sauvegarde le fichier en cours.
-- **Compile File** : Génère un fichier C à partir du code Draw++.
+- **Compile File** : Génère un fichier C et un éxécutable à partir du code Draw++.
 
 ### Canvas
 - **Zoom in/out** : Modifie la taille du dessin.
 - **Animate** : Lance une animation pour visualiser les instructions pas à pas.
+- **Sélection de dessin** : Sélectionnez des parties du dessin pour les manipuler (rotation, déplacement, etc.).
 
 ### Debugging
 - Les erreurs sont affichées dans une zone dédiée.
