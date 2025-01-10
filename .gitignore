@@ -2,3 +2,5 @@
 *.pyo
 __pycache__/
 *.o
+output
+output.c

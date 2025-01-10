@@ -10,12 +10,12 @@ int main() {
     }
 
     // Create a new cursor
-    Cursor cur1 = create_cursor(100, 100, "black", 5);
+    Cursor cur1 = create_cursor(100, 100, "red", 4);
     int x = 3;
-    while (x<5) {
+    while (x<10) {
+        // Draw a circle
+        draw_circle(&cur1, 50);
         move_cursor(&cur1, 100);
-        // Draw a square
-        draw_square(&cur1, 25);
         x = x+1;
     }
 
