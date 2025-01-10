@@ -3,6 +3,7 @@ import math
 from tkinter import ttk, filedialog, messagebox,simpledialog
 import os
 import time
+import subprocess
 
 from instruction import Cursor
 from execute import execute
@@ -373,21 +374,25 @@ class Application:
             messagebox.showerror("Erreur", "Veuillez écrire du code avant d'exécuter.")
             return
 
-        #Vérifier aucune erreur dans l'ast sinon on compile pas et on reenvoie l'erreur
-
-        #tokeninze le code
-        #parser le code
-        #
 
         try:
 
             toks = instrctions_listed(code)
             tokens = parseur(toks)
-            #si erreur dans le token pas de comp
+
+            for i in tokens:
+                if "error" in i.keys():
+                    self.afficher_erreur("[Compilation failled : check error in code]")
+                    return
             code_c = generate_c_code(tokens)
 
             write_c_file(code_c)
-            
+
+            # Compiler le fichier C
+            result = subprocess.run([
+                "gcc", "-o", "output", "output.c", "draw_lib.c", "-lSDL2", "-lm", "-lSDL2_gfx"
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
                         
             self.afficher_erreur("[Compilation is done]")
 
