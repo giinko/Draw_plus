@@ -1,4 +1,4 @@
-def generate_c_code(ast, window_width=800, window_height=600, window_title="Drawing Window"):
+def generate_c_code(ast, window_width=1200, window_height=1000, window_title="Drawing Window"):
     """
     Générateur de code C complet à partir de l'AST.
     :param ast: L'AST généré par le parseur.
