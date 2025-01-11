@@ -6,7 +6,7 @@
                    | <rotate> ";" 
                    | <draw> ";" 
                    | <set> ";" 
-                   | <assign> ";"
+                   | <=> ";"
 
 <create_cursor>    ::= "CREATE_CURSOR(" <name> "," <x> "," <y> "," <color> "," <thickness> ")"
                        // Vérification : exactement 5 arguments
@@ -31,7 +31,7 @@
                        // Vérification : exactement 5 arguments
                        // Vérification logique : <cursor> doit avoir été défini par une commande CREATE_CURSOR avant d'être utilisé.
 
-<assign>           ::= <variable> "=" <expression>
+<=>           ::= <variable> "=" <expression>
 
 <control_flow>     ::= <if> 
                    | <while> 
